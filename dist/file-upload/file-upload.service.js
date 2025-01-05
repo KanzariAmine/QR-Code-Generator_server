@@ -68,7 +68,7 @@ let FileUploadService = class FileUploadService {
             throw new common_1.BadRequestException('File is too Large!');
         }
         try {
-            const serverUrl = 'http://192.168.43.37:3000';
+            const serverUrl = 'https://dashboard.kanpower.tn/';
             const fileUrl = `${serverUrl}/uploads/${file.filename}`;
             const qrCodeFilename = `${file.filename}-qrcode.png`;
             const qrCodePath = path.join(__dirname, '../../uploads', qrCodeFilename);

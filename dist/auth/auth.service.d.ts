@@ -6,6 +6,6 @@ export declare class AuthService {
     private jwtService;
     constructor(jwtService: JwtService);
     signIn(email: string, pass: string): Promise<{
-        access_token: any;
+        access_token: string;
     }>;
 }
