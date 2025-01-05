@@ -74,7 +74,7 @@ export class FileUploadService {
 
     try {
       // File URL setup
-      const serverUrl = 'http://192.168.43.37:3000';
+      const serverUrl = 'https://dashboard.kanpower.tn/';
       const fileUrl = `${serverUrl}/uploads/${file.filename}`;
       const qrCodeFilename = `${file.filename}-qrcode.png`;
       const qrCodePath = path.join(__dirname, '../../uploads', qrCodeFilename);
