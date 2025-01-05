@@ -2,11 +2,13 @@ import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { existsSync, mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
+import { AuthModule } from 'src/auth/auth.module';
 import { FileUploadController } from './file-upload.controller';
 import { FileUploadService } from './file-upload.service';
 
 @Module({
   imports: [
+    AuthModule,
     MulterModule.register({
       storage: diskStorage({
         destination: (req, file, cb) => {
