@@ -23,7 +23,7 @@ export class FileUploadController {
   }
 
   @Get('allFiles')
-  getFiles(): string[] {
+  getFiles(): string[] | object{
     return this.fileUploadService.getAllFiles();
   }
 

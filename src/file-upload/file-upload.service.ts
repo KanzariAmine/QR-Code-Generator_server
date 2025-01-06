@@ -12,9 +12,15 @@ export class FileUploadService {
   private readonly baseDir = path.join(__dirname, '../../uploads'); // Define your directory
 
   // Method to fetch all file names
-  getAllFiles(): string[] {
+  getAllFiles(): string[] | object {
     try {
       const files = fs.readdirSync(this.baseDir);
+      if(files.length === 0){
+        return{
+          satuts: 200,
+          message: 'No File to upload'
+        }
+      }
       return files;
     } catch (error) {
       throw new Error(`Error reading files: ${error.message}`);

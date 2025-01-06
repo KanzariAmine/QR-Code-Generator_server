@@ -19,6 +19,12 @@ let FileUploadService = class FileUploadService {
     getAllFiles() {
         try {
             const files = fs.readdirSync(this.baseDir);
+            if (files.length === 0) {
+                return {
+                    satuts: 200,
+                    message: 'No File to upload'
+                };
+            }
             return files;
         }
         catch (error) {

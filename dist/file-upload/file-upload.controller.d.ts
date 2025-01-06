@@ -7,6 +7,6 @@ export declare class FileUploadController {
         filePath: string;
         qrCodeUrl: string;
     }>;
-    getFiles(): string[];
+    getFiles(): string[] | object;
     removeFile(filename: string): object;
 }
