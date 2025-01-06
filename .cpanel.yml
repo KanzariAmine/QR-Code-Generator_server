@@ -1,0 +1,14 @@
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/kanpower/nestjs_app
+    - export LOGFILE=$DEPLOYPATH/logs/app.log
+    # Ensure the logs directory exists
+    - mkdir -p $DEPLOYPATH/logs
+    # Install dependencies in production mode
+    - npm install --production
+    # Build the application
+    - npm run build
+    # Run the application and log output to app.log
+    - node dist/main.js > $LOGFILE 2>&1 &
+    # Send the log file via email
+    - echo "Deployment complete. Logs attached." | mail -s "Deployment Logs" -a $LOGFILE kanzari.amin@gmail.com
