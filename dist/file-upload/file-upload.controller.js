@@ -21,6 +21,9 @@ let FileUploadController = class FileUploadController {
     constructor(fileUploadService) {
         this.fileUploadService = fileUploadService;
     }
+    getHello() {
+        return this.fileUploadService.getHello();
+    }
     uploadFile(file) {
         return this.fileUploadService.handleFileUpload(file);
     }
@@ -32,6 +35,12 @@ let FileUploadController = class FileUploadController {
     }
 };
 exports.FileUploadController = FileUploadController;
+__decorate([
+    (0, common_1.Get)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", String)
+], FileUploadController.prototype, "getHello", null);
 __decorate([
     (0, common_1.Post)('upload'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),

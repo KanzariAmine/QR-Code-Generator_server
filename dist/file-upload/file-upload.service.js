@@ -5,6 +5,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var FileUploadService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FileUploadService = void 0;
 const common_1 = require("@nestjs/common");
@@ -12,22 +16,41 @@ const canvas_1 = require("canvas");
 const fs = require("fs");
 const path = require("path");
 const QRCode = require("qrcode");
-let FileUploadService = class FileUploadService {
+let FileUploadService = FileUploadService_1 = class FileUploadService {
     constructor() {
-        this.baseDir = path.join(__dirname, '../../uploads');
+        this.baseDir = path.join('/tmp', 'uploads');
+        this.logger = new common_1.Logger(FileUploadService_1.name);
+        this.ensureDirectoryExists();
+    }
+    ensureDirectoryExists() {
+        if (!fs.existsSync(this.baseDir)) {
+            this.logger.warn(`Directory does not exist. Creating directory: ${this.baseDir}`);
+            fs.mkdirSync(this.baseDir, { recursive: true });
+            this.logger.log(`Directory created: ${this.baseDir}`);
+        }
+        else {
+            this.logger.log(`Directory already exists: ${this.baseDir}`);
+        }
+    }
+    getHello() {
+        return 'Hello From upload file!';
     }
     getAllFiles() {
         try {
+            this.logger.log('Attempting to read files from the directory...');
             const files = fs.readdirSync(this.baseDir);
             if (files.length === 0) {
+                this.logger.warn('No files found in the directory.');
                 return {
-                    satuts: 200,
-                    message: 'No File to upload'
+                    status: 200,
+                    message: 'No File to upload',
                 };
             }
+            this.logger.log(`Successfully retrieved ${files.length} file(s) from the directory.`);
             return files;
         }
         catch (error) {
+            this.logger.error(`Error occurred while reading files from directory: ${this.baseDir}`, error.stack);
             throw new Error(`Error reading files: ${error.message}`);
         }
     }
@@ -74,7 +97,7 @@ let FileUploadService = class FileUploadService {
             throw new common_1.BadRequestException('File is too Large!');
         }
         try {
-            const serverUrl = 'https://dashboard.kanpower.tn/';
+            const serverUrl = 'https://qr-code-generator-server.vercel.app/';
             const fileUrl = `${serverUrl}/uploads/${file.filename}`;
             const qrCodeFilename = `${file.filename}-qrcode.png`;
             const qrCodePath = path.join(__dirname, '../../uploads', qrCodeFilename);
@@ -120,7 +143,8 @@ let FileUploadService = class FileUploadService {
     }
 };
 exports.FileUploadService = FileUploadService;
-exports.FileUploadService = FileUploadService = __decorate([
-    (0, common_1.Injectable)()
+exports.FileUploadService = FileUploadService = FileUploadService_1 = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [])
 ], FileUploadService);
 //# sourceMappingURL=file-upload.service.js.map

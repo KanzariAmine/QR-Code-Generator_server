@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { createCanvas, loadImage } from 'canvas';
@@ -9,20 +10,55 @@ import * as path from 'path';
 import * as QRCode from 'qrcode';
 @Injectable()
 export class FileUploadService {
-  private readonly baseDir = path.join(__dirname, '../../uploads'); // Define your directory
+  // Default writable directory to /tmp/uploads
+  private readonly baseDir = path.join('/tmp', 'uploads');
+  private readonly logger = new Logger(FileUploadService.name);
 
+  constructor() {
+    this.ensureDirectoryExists();
+  }
+
+  private ensureDirectoryExists(): void {
+    if (!fs.existsSync(this.baseDir)) {
+      this.logger.warn(
+        `Directory does not exist. Creating directory: ${this.baseDir}`,
+      );
+      fs.mkdirSync(this.baseDir, { recursive: true });
+      this.logger.log(`Directory created: ${this.baseDir}`);
+    } else {
+      this.logger.log(`Directory already exists: ${this.baseDir}`);
+    }
+  }
+
+  getHello(): string {
+    return 'Hello From upload file!';
+  }
   // Method to fetch all file names
   getAllFiles(): string[] | object {
     try {
+      this.logger.log('Attempting to read files from the directory...');
+
       const files = fs.readdirSync(this.baseDir);
-      if(files.length === 0){
-        return{
-          satuts: 200,
-          message: 'No File to upload'
-        }
+
+      if (files.length === 0) {
+        this.logger.warn('No files found in the directory.');
+        return {
+          status: 200,
+          message: 'No File to upload',
+        };
       }
+
+      this.logger.log(
+        `Successfully retrieved ${files.length} file(s) from the directory.`,
+      );
       return files;
     } catch (error) {
+      this.logger.error(
+        `Error occurred while reading files from directory: ${this.baseDir}`,
+        error.stack,
+      );
+
+      // Re-throw the error with additional context
       throw new Error(`Error reading files: ${error.message}`);
     }
   }
@@ -80,7 +116,7 @@ export class FileUploadService {
 
     try {
       // File URL setup
-      const serverUrl = 'https://dashboard.kanpower.tn/';
+      const serverUrl = 'https://qr-code-generator-server.vercel.app/';
       const fileUrl = `${serverUrl}/uploads/${file.filename}`;
       const qrCodeFilename = `${file.filename}-qrcode.png`;
       const qrCodePath = path.join(__dirname, '../../uploads', qrCodeFilename);
@@ -98,26 +134,6 @@ export class FileUploadService {
         'Failed to process the file or generate QR code',
       );
     }
-
-    // return new Promise((resolve, reject) => {
-    //   QRCode.toFile(
-    //     qrCodePath,
-    //     fileUrl, // Encode the file URL
-    //     { width: 300 }, // Set QR code image size
-    //     (err) => {
-    //       if (err) {
-    //         reject(new BadRequestException('Failed to generate QR Code'));
-    //       } else {
-    //         const qrCodeUrl = `${serverUrl}/uploads/${qrCodeFilename}`;
-    //         resolve({
-    //           message: 'File uploaded and QR Code generated successfully',
-    //           filePath: file.path,
-    //           qrCodeUrl,
-    //         });
-    //       }
-    //     },
-    //   );
-    // });
   }
 
   private generateQRCodeWithLogo(

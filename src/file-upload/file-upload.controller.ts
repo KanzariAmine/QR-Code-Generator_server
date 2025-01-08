@@ -15,6 +15,11 @@ import { FileUploadService } from './file-upload.service';
 export class FileUploadController {
   constructor(private readonly fileUploadService: FileUploadService) {}
 
+  @Get()
+  getHello(): string {
+    return this.fileUploadService.getHello();
+  }
+
   @Post('upload')
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file'))
@@ -23,7 +28,7 @@ export class FileUploadController {
   }
 
   @Get('allFiles')
-  getFiles(): string[] | object{
+  getFiles(): string[] | object {
     return this.fileUploadService.getAllFiles();
   }
 
