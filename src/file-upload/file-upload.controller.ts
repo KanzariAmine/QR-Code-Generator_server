@@ -28,11 +28,13 @@ export class FileUploadController {
   }
 
   @Get('allFiles')
+  @UseGuards(AuthGuard)
   getFiles(): string[] | object {
     return this.fileUploadService.getAllFiles();
   }
 
   @Delete('delete_file') // Route definition
+  @UseGuards(AuthGuard)
   removeFile(@Query('filename') filename: string) {
     return this.fileUploadService.deleteFile(filename);
   }
