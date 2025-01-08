@@ -119,7 +119,7 @@ export class FileUploadService {
       const serverUrl = 'https://qr-code-generator-server.vercel.app/';
       const fileUrl = `${serverUrl}/uploads/${file.filename}`;
       const qrCodeFilename = `${file.filename}-qrcode.png`;
-      const qrCodePath = path.join(__dirname, '../../uploads', qrCodeFilename);
+      const qrCodePath = path.join('/tmp', 'uploads', qrCodeFilename);
 
       // QR Code generation with logo
       await this.generateQRCodeWithLogo(fileUrl, qrCodePath);
