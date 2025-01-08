@@ -130,6 +130,10 @@ export class FileUploadService {
         qrCodeUrl,
       };
     } catch (error) {
+      this.logger.error(
+        'Failed to process the file or generate QR code',
+        error.stack,
+      );
       throw new BadRequestException(
         'Failed to process the file or generate QR code',
       );
