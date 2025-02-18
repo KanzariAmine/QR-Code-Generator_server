@@ -6,6 +6,9 @@
       "use": "@vercel/node"
     }
   ],
+  "env": {
+    "NODE_VERSION": "22.6.0"
+  },
   "routes": [
     {
       "src": "/(.*)",
