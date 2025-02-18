@@ -3,14 +3,13 @@ FROM node:22-slim AS build
 
 # Install system dependencies (including ZLIB 1.2.9)
 RUN apt-get update && apt-get install -y \
-  build-essential \
-  zlib1g-dev \
-  libcairo2-dev \
-  libpango1.0-dev \
-  libjpeg-dev \
-  libgif-dev \
-  librsvg2-dev \
-  && rm -rf /var/lib/apt/lists/*
+    zlib1g-dev=1:1.2.9.dfsg-1 \
+    libcairo2-dev \
+    libpango1.0-dev \
+    libjpeg-dev \
+    libgif-dev \
+    librsvg2-dev \
+    build-essential
 
 # Set the working directory
 WORKDIR /usr/src/app
