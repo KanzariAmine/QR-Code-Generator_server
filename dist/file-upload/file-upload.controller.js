@@ -52,12 +52,14 @@ __decorate([
 ], FileUploadController.prototype, "uploadFile", null);
 __decorate([
     (0, common_1.Get)('allFiles'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Object)
 ], FileUploadController.prototype, "getFiles", null);
 __decorate([
     (0, common_1.Delete)('delete_file'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Query)('filename')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
