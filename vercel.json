@@ -3,7 +3,10 @@
   "builds": [
     {
       "src": "dist/main.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "buildCommand": "apt-get update && apt-get install -y libpixman-1-dev zlib1g && npm install"
+      }
     }
   ],
   "routes": [
