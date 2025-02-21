@@ -41,14 +41,18 @@ var __importStar = (this && this.__importStar) || (function () {
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DropboxService = void 0;
 const axios_1 = require("@nestjs/axios");
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
-const canvas_1 = require("canvas");
+const promises_1 = __importDefault(require("fs/promises"));
 const path = __importStar(require("path"));
 const QRCode = __importStar(require("qrcode"));
+const sharp_1 = __importDefault(require("sharp"));
 let DropboxService = class DropboxService {
     constructor(httpService, configService) {
         this.httpService = httpService;
@@ -129,19 +133,29 @@ let DropboxService = class DropboxService {
     async generateQRCodeWithLogo(data) {
         const logoPath = path.join(__dirname, '../../assets/kanpower_logo.jpg');
         try {
-            const canvas = (0, canvas_1.createCanvas)(500, 500);
-            await QRCode.toCanvas(canvas, data, {
+            const qrBuffer = await QRCode.toBuffer(data, {
                 errorCorrectionLevel: 'H',
                 margin: 2,
+                width: 500,
             });
-            const ctx = canvas.getContext('2d');
-            const logo = await (0, canvas_1.loadImage)(logoPath);
-            const logoSize = canvas.width * 0.2;
-            const logoX = (canvas.width - logoSize) / 2;
-            const logoY = (canvas.height - logoSize) / 2;
-            ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
-            const buffer = canvas.toBuffer('image/png');
-            const base64Image = `data:image/png;base64,${buffer.toString('base64')}`;
+            const logoBuffer = await promises_1.default.readFile(logoPath);
+            const qrMetadata = await (0, sharp_1.default)(qrBuffer).metadata();
+            const logoSize = Math.floor(qrMetadata.width * 0.2);
+            console.log('🚀 ~ DropboxService ~ generateQRCodeWithLogo ~ logoSize:', logoSize);
+            const resizedLogo = await (0, sharp_1.default)(logoBuffer)
+                .resize(logoSize, logoSize)
+                .toBuffer();
+            const qrWithLogo = await (0, sharp_1.default)(qrBuffer)
+                .composite([
+                {
+                    input: resizedLogo,
+                    top: Math.floor((qrMetadata.height - logoSize) / 2),
+                    left: Math.floor((qrMetadata.width - logoSize) / 2),
+                },
+            ])
+                .png()
+                .toBuffer();
+            const base64Image = `data:image/png;base64,${qrWithLogo.toString('base64')}`;
             return base64Image;
         }
         catch (error) {

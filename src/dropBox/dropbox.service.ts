@@ -1,9 +1,10 @@
 import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createCanvas, loadImage } from 'canvas';
+import fs from 'fs/promises';
 import * as path from 'path';
 import * as QRCode from 'qrcode';
+import sharp from 'sharp';
 @Injectable()
 export class DropboxService {
   private readonly dropboxApiUrl = 'https://api.dropboxapi.com/2';
@@ -105,27 +106,44 @@ export class DropboxService {
     const logoPath = path.join(__dirname, '../../assets/kanpower_logo.jpg');
 
     try {
-      // Step 1: Generate QR code as a canvas
-      const canvas = createCanvas(500, 500);
-      await QRCode.toCanvas(canvas, data, {
+      // Step 1: Generate QR code as a buffer
+      const qrBuffer = await QRCode.toBuffer(data, {
         errorCorrectionLevel: 'H',
         margin: 2,
+        width: 500,
       });
 
-      // Step 2: Load the logo image
-      const ctx = canvas.getContext('2d');
-      const logo = await loadImage(logoPath);
+      // Step 2: Load the logo image as a buffer
+      const logoBuffer = await fs.readFile(logoPath);
 
-      // Step 3: Draw the logo on the center of the QR code
-      const logoSize = canvas.width * 0.2; // Logo size (20% of QR code width)
-      const logoX = (canvas.width - logoSize) / 2; // Center horizontally
-      const logoY = (canvas.height - logoSize) / 2; // Center vertically
+      // Get metadata of the QR code to calculate logo size and position
+      const qrMetadata = await sharp(qrBuffer).metadata();
+      const logoSize = Math.floor(qrMetadata.width * 0.2); // Logo size (20% of QR code width)
+      console.log(
+        '🚀 ~ DropboxService ~ generateQRCodeWithLogo ~ logoSize:',
+        logoSize,
+      );
 
-      ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
+      // Step 3: Resize the logo
+      const resizedLogo = await sharp(logoBuffer)
+        .resize(logoSize, logoSize)
+        .toBuffer();
 
-      // Step 4: Convert the canvas to a buffer and return it
-      const buffer = canvas.toBuffer('image/png');
-      const base64Image = `data:image/png;base64,${buffer.toString('base64')}`;
+      // Step 4: Composite the QR code and the logo
+      const qrWithLogo = await sharp(qrBuffer)
+        .composite([
+          {
+            input: resizedLogo,
+            top: Math.floor((qrMetadata.height - logoSize) / 2),
+            left: Math.floor((qrMetadata.width - logoSize) / 2),
+          },
+        ])
+        .png()
+        .toBuffer();
+
+      // Step 5: Convert to base64
+      const base64Image = `data:image/png;base64,${qrWithLogo.toString('base64')}`;
+
       return base64Image;
     } catch (error) {
       throw new BadRequestException('Failed to generate QR Code with logo');

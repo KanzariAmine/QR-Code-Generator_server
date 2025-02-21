@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
+const auth_module_1 = require("./auth/auth.module");
 const dropbox_module_1 = require("./dropBox/dropbox.module");
 const dropbox_auth_module_1 = require("./Oauth2/dropbox-auth.module");
 let AppModule = class AppModule {
@@ -21,6 +22,7 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             dropbox_auth_module_1.DropboxAuthModule,
             dropbox_module_1.DropboxModule,
+            auth_module_1.AuthModule,
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
             }),

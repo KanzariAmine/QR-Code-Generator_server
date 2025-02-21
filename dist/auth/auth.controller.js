@@ -20,6 +20,7 @@ let AuthController = class AuthController {
         this.authService = authService;
     }
     signIn(userInfo) {
+        console.log('userInfo', userInfo);
         return this.authService.signIn(userInfo.email, userInfo.password);
     }
 };
