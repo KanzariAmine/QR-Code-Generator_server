@@ -20,8 +20,9 @@ let DropboxController = class DropboxController {
     constructor(dropboxService) {
         this.dropboxService = dropboxService;
     }
-    async getUserInfo() {
-        return this.dropboxService.getUserInfo();
+    async getUserInfo(request) {
+        const authHeader = request.headers['authorization'];
+        return this.dropboxService.getUserInfo(authHeader);
     }
     async uploadFile(file, path, request) {
         const authHeader = request.headers['authorization'];
@@ -56,8 +57,9 @@ let DropboxController = class DropboxController {
 exports.DropboxController = DropboxController;
 __decorate([
     (0, common_1.Get)('userinfo'),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Request]),
     __metadata("design:returntype", Promise)
 ], DropboxController.prototype, "getUserInfo", null);
 __decorate([

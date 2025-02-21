@@ -19,8 +19,9 @@ export class DropboxController {
   constructor(private readonly dropboxService: DropboxService) {}
 
   @Get('userinfo')
-  async getUserInfo() {
-    return this.dropboxService.getUserInfo();
+  async getUserInfo(@Req() request: Request) {
+    const authHeader = request.headers['authorization'];
+    return this.dropboxService.getUserInfo(authHeader);
   }
 
   @Post('upload')

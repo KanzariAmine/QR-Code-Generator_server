@@ -60,10 +60,10 @@ let DropboxService = class DropboxService {
         this.dropboxApiUrl = 'https://api.dropboxapi.com/2';
         this.accessToken = this.configService.get('DROPBOX_ACCESS_TOKEN');
     }
-    async getUserInfo() {
+    async getUserInfo(authHeader) {
         const url = `${this.dropboxApiUrl}/users/get_current_account`;
         const headers = {
-            Authorization: `Bearer ${this.accessToken}`,
+            Authorization: authHeader,
             'Content-Type': 'application/json',
         };
         try {
