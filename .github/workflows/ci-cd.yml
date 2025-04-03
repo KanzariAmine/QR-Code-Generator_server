@@ -1,0 +1,47 @@
+name: CI/CD Pipeline
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      # Set up your language environment (example for Node.js)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Run your tests (adjust for your test framework)
+      - name: Run tests
+        run: npm test
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          script: |
+            cd /var/www/html/QR-Code-Generator_server 
+            git pull origin main
+            npm install --production
+            npm run build
+            sudo systemctl restart QR-Code-Generator_server
