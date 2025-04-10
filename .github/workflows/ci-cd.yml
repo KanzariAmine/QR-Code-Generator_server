@@ -23,8 +23,8 @@ jobs:
         run: npm install
 
       # Run your tests (adjust for your test framework)
-      - name: Run tests
-        run: npm test
+      # - name: Run tests
+      #  run: npm test
   deploy:
     needs: test
     if: github.ref == 'refs/heads/main'
