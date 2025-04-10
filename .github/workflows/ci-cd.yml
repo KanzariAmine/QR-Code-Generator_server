@@ -45,6 +45,7 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           port: ${{ secrets.VPS_PORT }}
+          debug: true
           script_timeout: 10m
           envs: NODE_ENV=production
           script: |
