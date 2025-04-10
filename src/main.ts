@@ -7,6 +7,11 @@ async function bootstrap() {
     cors: true,
   });
 
+  
+  // Trust Apache/Nginx proxy headers
+  app.set('trust proxy', true);
+
+  
   // Serve static files from the uploads directory
   app.useStaticAssets(path.join(__dirname, '..', 'uploads'), {
     prefix: '/uploads',
