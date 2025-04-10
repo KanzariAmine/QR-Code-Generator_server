@@ -37,6 +37,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '22'
+          
+      - name: Debug Secrets
+        run: |
+          echo "Host: ${{ secrets.VPS_HOST }}"
+          echo "Port: ${{ secrets.VPS_PORT }}"
+          echo "Username: ${{ secrets.VPS_USERNAME }}"
+          echo "Key exists: ${{ secrets.VPS_PRIVATE_KEY != '' }}"
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1
