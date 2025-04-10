@@ -1,37 +1,42 @@
 name: CI/CD Pipeline
+
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      # Set up your language environment (example for Node.js)
+        
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22'
-
-      # Install dependencies
+          cache: 'npm'
+          
       - name: Install dependencies
-        run: npm install
+        run: npm ci # More reliable than npm install for CI
+          
+       # - name: Run tests
+       # run: npm test
 
-      # Run your tests (adjust for your test framework)
-      # - name: Run tests
-      #  run: npm test
   deploy:
     needs: test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1
@@ -40,12 +45,17 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           port: ${{ secrets.VPS_PORT }}
-          # Add these for debugging:
-          debug: true
-          script_timeout: 5m
+          script_timeout: 10m
+          envs: NODE_ENV=production
           script: |
+            echo "Starting deployment..."
             cd /var/www/html/qr-code-server
-            git pull origin main
-            npm install --production
+            git fetch origin main
+            git reset --hard origin/main
+            npm ci --production
             npm run build
+            # If using PM2
+            pm2 restart qr-code-server || echo "PM2 restart failed, trying systemctl..."
+            # Fallback to systemctl
             sudo systemctl restart qr-code-server
+            echo "Deployment completed successfully"
