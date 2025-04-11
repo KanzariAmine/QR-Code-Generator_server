@@ -43,29 +43,48 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+          # Add VPS host fingerprint (replace AAAAC3Nz... with your actual host key)
           echo "${{ secrets.VPS_HOST }} ssh-ed25519 AAAAC3Nz..." >> ~/.ssh/known_hosts
+          # Verify key was created correctly
+          ls -la ~/.ssh
+          ssh-keygen -l -f ~/.ssh/id_ed25519
 
       - name: Test connection
-        run: ssh -vvv -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "echo Connected!"
-
+        run: ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "echo Connected!"
+      
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
-          # key: ${{ secrets.VPS_PRIVATE_KEY }}
+          key: ${{ secrets.VPS_SSH_KEY }}  # Use the same key as above
           port: ${{ secrets.VPS_PORT }}
-          debug: true
+          script_stop: true  # Stop if any command fails
           envs: NODE_ENV=production
           script: |
-            echo "Starting deployment..."
-            cd /var/www/html/qr-code-server
+            echo "=== Starting Deployment ==="
+            cd /var/www/html/qr-code-server || exit 1
+            
+            echo "1. Fetching latest code..."
             git fetch origin main
+            
+            echo "2. Resetting to origin/main..."
             git reset --hard origin/main
+            
+            echo "3. Installing dependencies..."
             npm ci --production
+            
+            echo "4. Building application..."
             npm run build
-            # If using PM2
-            pm2 restart qr-code-server || echo "PM2 restart failed, trying systemctl..."
-            # Fallback to systemctl
-            sudo systemctl restart qr-code-server
-            echo "Deployment completed successfully"
+            
+            echo "5. Restarting service..."
+            # Try PM2 first, then fallback to systemctl
+            if command -v pm2 &> /dev/null; then
+              echo "Using PM2..."
+              pm2 restart qr-code-server
+            else
+              echo "Using systemctl..."
+              sudo systemctl restart qr-code-server
+            fi
+            
+            echo "=== Deployment Complete ==="
