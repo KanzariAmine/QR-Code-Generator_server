@@ -38,12 +38,11 @@ jobs:
         with:
           node-version: '22'
           
-      - name: Debug Secrets
+      - name: Install SSH key
         run: |
-          echo "Host: ${{ secrets.VPS_HOST }}"
-          echo "Port: ${{ secrets.VPS_PORT }}"
-          echo "Username: ${{ secrets.VPS_USERNAME }}"
-          echo "Key exists: ${{ secrets.VPS_PRIVATE_KEY != '' }}"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
       - name: Test connection
         run: ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "echo Connected!"
