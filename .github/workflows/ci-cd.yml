@@ -45,7 +45,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
       - name: Test connection
-        run: ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "echo Connected!"
+        run: ssh -vvv -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "echo Connected!"
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1
