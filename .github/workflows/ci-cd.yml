@@ -45,6 +45,9 @@ jobs:
           echo "Username: ${{ secrets.VPS_USERNAME }}"
           echo "Key exists: ${{ secrets.VPS_PRIVATE_KEY != '' }}"
 
+      - name: Test connection
+        run: ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "echo Connected!"
+
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1
         with:
